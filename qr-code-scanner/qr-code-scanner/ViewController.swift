@@ -12,7 +12,7 @@ import QRScanner
 class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate{
     
     private var qrCodes: [QRCodeItem] = []
-    
+
     private var qrScannerView: QRScannerView?
     
     private var collectionView: UICollectionView!
@@ -135,8 +135,8 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        10
-        //qrCodes.count
+        //10
+        qrCodes.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -147,30 +147,30 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
                fatalError("Unable to dequeue QRCodeCollectionViewCell")
            }
         
-        let dummyImage = UIImage(systemName: "qrcode")!
-        let dummyDescription = "QR Code \(indexPath.item + 1)"
-        let dummyTimestamp = "21/10/25"
-        
-        cell.configure(with: dummyImage, description: dummyDescription, timestamp: dummyTimestamp)
-        
-        cell.onQRCodeTapped = { [weak self] in
-            guard let self = self else { return }
-            let dummyImage = UIImage(systemName: "qrcode")!
-            self.presentQRCodeModal(qrImage: dummyImage)
-        }
-        
-//        let item = qrCodes[indexPath.item]
-//        cell.configure(with: item.image, description: item.description, timestamp: item.timestamp)
+//        let dummyImage = UIImage(systemName: "qrcode")!
+//        let dummyDescription = "QR Code \(indexPath.item + 1)"
+//        let dummyTimestamp = "21/10/25"
+//        
+//        cell.configure(with: dummyImage, description: dummyDescription, timestamp: dummyTimestamp)
+//        
 //        cell.onQRCodeTapped = { [weak self] in
 //            guard let self = self else { return }
-//            self.presentQRCodeModal(qrImage: item.image)
+//            let dummyImage = UIImage(systemName: "qrcode")!
+//            self.presentQRCodeModal(qrImage: dummyImage)
 //        }
-//        
+        
+            let item = qrCodes[indexPath.item]
+            cell.configure(with: item.image, description: item.description, timestamp: item.timestamp)
+            cell.onQRCodeTapped = { [weak self] in
+            guard let self = self else { return }
+            self.presentQRCodeModal(item: item)
+        }
+        
         return cell
     }
 
-    func presentQRCodeModal(qrImage: UIImage) {
-        let modalVC = QRModalViewController(qrImage: qrImage)
+    func presentQRCodeModal(item: QRCodeItem) {
+        let modalVC = QRModalViewController(item: item)
         modalVC.modalPresentationStyle = .pageSheet
         
         if let sheet = modalVC.sheetPresentationController {
