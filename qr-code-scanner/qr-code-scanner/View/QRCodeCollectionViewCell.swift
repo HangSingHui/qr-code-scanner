@@ -1,3 +1,10 @@
+//
+//  QRCodeCollectionViewCell.swift
+//  qr-code-scanner
+//
+//  Created by Sing Hui Hang on 21/10/25.
+//
+
 import UIKit
 
 class QRCodeCollectionViewCell: UICollectionViewCell {
