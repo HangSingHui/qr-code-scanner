@@ -14,6 +14,25 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     private var collectionView: UICollectionView!
     
     private var segmentedControl = UISegmentedControl(items: ["Grid", "List"])
+    
+    //Layout toggle
+     private var gridLayout: UICollectionViewFlowLayout = {
+         let layout = UICollectionViewFlowLayout()
+         let width = (UIScreen.main.bounds.width - 30) / 2
+         layout.itemSize = CGSize(width: width, height: width)
+         layout.minimumInteritemSpacing = 10
+         layout.minimumLineSpacing = 10
+         return layout
+     }()
+
+     private var listLayout: UICollectionViewFlowLayout = {
+         let layout = UICollectionViewFlowLayout()
+         let width = UIScreen.main.bounds.width - 20
+         layout.itemSize = CGSize(width: width, height: 80)
+         layout.minimumLineSpacing = 10
+         return layout
+     }()
+    
    
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,23 +57,23 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         print("scanning")
     }
     
-    @objc func layoutChanged() {
-        if segmentedControl.selectedSegmentIndex == 0 {
-            print("Grid layout selected")
-        } else {
-            print("List layout selected")
-        }
+    @objc private func layoutChanged() {
+        let layout = segmentedControl.selectedSegmentIndex == 0 ? gridLayout : listLayout
+        collectionView.setCollectionViewLayout(layout, animated: true)
     }
+
 
     
     private func setupCollectionView() {
-        let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 100, height: 100)
-        layout.minimumLineSpacing = 10
-        layout.minimumInteritemSpacing = 10
-        layout.scrollDirection = .vertical
+//        let layout = UICollectionViewFlowLayout()
+//
+//
+//        layout.itemSize = CGSize(width: 100, height: 100)
+//        layout.minimumLineSpacing = 10
+//        layout.minimumInteritemSpacing = 10
+//        layout.scrollDirection = .vertical
 
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: gridLayout)
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(QRCodeCollectionViewCell.self,
@@ -94,14 +113,31 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         
         cell.configure(with: dummyImage, description: dummyDescription, timestamp: dummyTimestamp)
         
-        cell.onQRCodeTapped = {
-            print("Tapped QR at \(indexPath.item + 1)")
+        cell.onQRCodeTapped = { [weak self] in
+            guard let self = self else { return }
+            let dummyImage = UIImage(systemName: "qrcode")!
+            self.presentQRCodeModal(qrImage: dummyImage)
         }
 
         return cell
         
     }
+
+    func presentQRCodeModal(qrImage: UIImage) {
+        let modalVC = QRModalViewController(qrImage: qrImage)
+        modalVC.modalPresentationStyle = .pageSheet
+        
+        if let sheet = modalVC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        present(modalVC, animated: true)
+    }
 }
     
 
+#Preview {
+    ViewController()
+}
 
