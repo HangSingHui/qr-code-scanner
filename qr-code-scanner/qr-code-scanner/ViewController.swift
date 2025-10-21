@@ -54,19 +54,42 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.titleView = segmentedControl
+
+        // Background
+        view.backgroundColor = UIColor.white
+
+        // Navigation title
+        navigationItem.title = "My QR Codes"
+        navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor: UIColor.systemBlue,
+            .font: UIFont.systemFont(ofSize: 20, weight: .bold)
+        ]
+
+        // Add segmented control below navigation bar
         segmentedControl.selectedSegmentIndex = 0
+        segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(segmentedControl)
         segmentedControl.addTarget(self, action: #selector(layoutChanged), for: .valueChanged)
+
+        NSLayoutConstraint.activate([
+            segmentedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            segmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            segmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            segmentedControl.heightAnchor.constraint(equalToConstant: 32)
+        ])
+
+        // Right add button
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
             action: #selector(scanNewQRCode)
         )
-            
+
         setupCollectionView()
         setupLayout()
     //    loadDummyData()
     }
+
     
     private func setupQRScanner() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -116,13 +139,11 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     @objc private func layoutChanged() {
         currentLayoutStyle = segmentedControl.selectedSegmentIndex == 0 ? .grid : .list
         let layout = currentLayoutStyle == .grid ? gridLayout : listLayout
-
-        UIView.performWithoutAnimation {
-            collectionView.setCollectionViewLayout(layout, animated: false)
-            collectionView.reloadData()
-            collectionView.collectionViewLayout.invalidateLayout()
-            collectionView.layoutIfNeeded()
-        }
+        
+        collectionView.setCollectionViewLayout(layout, animated: false)
+        collectionView.reloadData()
+        collectionView.collectionViewLayout.invalidateLayout()
+        collectionView.layoutIfNeeded()
     }
 
 
@@ -144,7 +165,8 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
 
     private func setupLayout() {
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 8),
+                    collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
