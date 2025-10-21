@@ -4,19 +4,15 @@
 //
 //  Created by Gernaine Heng on 21/10/25.
 //
-
 import UIKit
 
 class QRCodeListViewCell: UICollectionViewCell {
     
     static let identifier = "QRCodeListViewCell"
     
-    // MARK: - UI components
-    
     let qrImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
-        iv.isUserInteractionEnabled = true
         iv.tintColor = .label
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
@@ -25,8 +21,8 @@ class QRCodeListViewCell: UICollectionViewCell {
     let linkLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.numberOfLines = 2
-        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.textAlignment = .left
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -38,10 +34,6 @@ class QRCodeListViewCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    var onQRCodeTapped: (() -> Void)?
-    
-    // MARK: - init
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -56,9 +48,6 @@ class QRCodeListViewCell: UICollectionViewCell {
         contentView.addSubview(linkLabel)
         contentView.addSubview(timeLabel)
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(qrTapped))
-        contentView.addGestureRecognizer(tapGesture)
-        
         setupConstraints()
     }
     
@@ -66,12 +55,10 @@ class QRCodeListViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Constraints
-
     private func setupConstraints() {
         NSLayoutConstraint.activate([
+            qrImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
             qrImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            qrImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             qrImageView.widthAnchor.constraint(equalToConstant: 60),
             qrImageView.heightAnchor.constraint(equalToConstant: 60),
             
@@ -86,15 +73,9 @@ class QRCodeListViewCell: UICollectionViewCell {
         ])
     }
     
-    // MARK: - configure
     func configure(with qrImage: UIImage, description: String, timestamp: String) {
         qrImageView.image = qrImage
         linkLabel.text = description
         timeLabel.text = timestamp
-    }
-    
-    // MARK: - Action
-    @objc private func qrTapped() {
-        onQRCodeTapped?()
     }
 }
