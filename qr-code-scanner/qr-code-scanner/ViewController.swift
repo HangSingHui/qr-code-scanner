@@ -160,13 +160,11 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     @objc private func layoutChanged() {
         currentLayoutStyle = segmentedControl.selectedSegmentIndex == 0 ? .grid : .list
         let layout = currentLayoutStyle == .grid ? gridLayout : listLayout
-
-        UIView.performWithoutAnimation {
-            collectionView.setCollectionViewLayout(layout, animated: false)
-            collectionView.reloadData()
-            collectionView.collectionViewLayout.invalidateLayout()
-            collectionView.layoutIfNeeded()
-        }
+        
+        collectionView.setCollectionViewLayout(layout, animated: false)
+        collectionView.reloadData()
+        collectionView.collectionViewLayout.invalidateLayout()
+        collectionView.layoutIfNeeded()
     }
 
 
