@@ -30,18 +30,3 @@ class QRModalViewController: UIViewController {
         ])
     }
 }
-
-/* function to present qrcode modal in main view controller
- 
- func presentQRCodeModal(qrImage: UIImage) {
-     let modalVC = QRModalViewController(qrImage: qrImage)
-     modalVC.modalPresentationStyle = .pageSheet
-
-     if let sheet = modalVC.sheetPresentationController {
-         sheet.detents = [.medium()]
-         sheet.prefersGrabberVisible = true
-     }
-
-     present(modalVC, animated: true)
-}
- */
