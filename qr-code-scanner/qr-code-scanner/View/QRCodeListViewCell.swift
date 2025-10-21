@@ -43,13 +43,22 @@ class QRCodeListViewCell: UICollectionViewCell {
         contentView.layer.shadowOpacity = 0.05
         contentView.layer.shadowOffset = CGSize(width: 0, height: 2)
         contentView.layer.shadowRadius = 4
+
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+    
+        NSLayoutConstraint.activate([
+    
+            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
         
         contentView.addSubview(qrImageView)
         contentView.addSubview(linkLabel)
         contentView.addSubview(timeLabel)
-        
         setupConstraints()
     }
+
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

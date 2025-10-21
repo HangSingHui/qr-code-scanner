@@ -44,12 +44,14 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 12
         layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        layout.itemSize = CGSize(
+            width: UIScreen.main.bounds.width - 20,
+            height: 100 //
+            
+        )
         return layout
     }()
 
-
-   
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.titleView = segmentedControl
@@ -63,7 +65,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             
         setupCollectionView()
         setupLayout()
-        loadDummyData() // Add dummy data for testing
+        loadDummyData()
     }
     
     private func loadDummyData() {
@@ -135,11 +137,13 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     @objc private func layoutChanged() {
         currentLayoutStyle = segmentedControl.selectedSegmentIndex == 0 ? .grid : .list
         let layout = currentLayoutStyle == .grid ? gridLayout : listLayout
-        collectionView.setCollectionViewLayout(layout, animated: true)
-        
-        // Force layout update for self-sizing
-        collectionView.reloadData()
-        collectionView.collectionViewLayout.invalidateLayout()
+
+        UIView.performWithoutAnimation {
+            collectionView.setCollectionViewLayout(layout, animated: false)
+            collectionView.reloadData()
+            collectionView.collectionViewLayout.invalidateLayout()
+            collectionView.layoutIfNeeded()
+        }
     }
 
 
@@ -187,7 +191,6 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         }
     }
     
-    // Fixed: Add didSelectItemAt to handle taps
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let item = qrCodes[indexPath.item]
         presentQRCodeModal(qrImage: item.image)
