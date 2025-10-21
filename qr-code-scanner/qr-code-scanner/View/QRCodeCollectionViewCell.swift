@@ -18,6 +18,7 @@ class QRCodeCollectionViewCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFit
         iv.isUserInteractionEnabled = true
         iv.tintColor = .label
+        iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
 
@@ -26,6 +27,7 @@ class QRCodeCollectionViewCell: UICollectionViewCell {
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.numberOfLines = 2
         label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
@@ -34,6 +36,7 @@ class QRCodeCollectionViewCell: UICollectionViewCell {
         label.font = UIFont.systemFont(ofSize: 12)
         label.textColor = .secondaryLabel
         label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 

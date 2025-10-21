@@ -53,9 +53,19 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     
    
     
+//    @objc func scanNewQRCode(){
+//        print("scanning")
+//    }
+    
     @objc func scanNewQRCode(){
-        print("scanning")
+        let linkText = "https://google.com"
+        if let qrImage = generateQRCode(from: linkText) {
+            presentQRCodeModal(qrImage: qrImage)
+        } else {
+            print("Failed to generate QR code")
+        }
     }
+
     
     @objc private func layoutChanged() {
         let layout = segmentedControl.selectedSegmentIndex == 0 ? gridLayout : listLayout
@@ -134,6 +144,23 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         
         present(modalVC, animated: true)
     }
+    
+    private func generateQRCode(from string: String) -> UIImage? {
+        let data = string.data(using: String.Encoding.ascii)
+
+        if let filter = CIFilter(name: "CIQRCodeGenerator") {
+            filter.setValue(data, forKey: "inputMessage")
+            filter.setValue("Q", forKey: "inputCorrectionLevel")
+            
+            if let outputImage = filter.outputImage {
+                let scaledImage = outputImage.transformed(by: CGAffineTransform(scaleX: 10, y: 10))
+                return UIImage(ciImage: scaledImage)
+            }
+        }
+
+        return nil
+    }
+
 }
     
 
