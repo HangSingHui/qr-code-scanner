@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3EFB896B2EA748DF0021F731 /* QRScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 3EFB896A2EA748DF0021F731 /* QRScanner */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		3EFB890C2EA721630021F731 /* qr-code-scanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "qr-code-scanner.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EFB896B2EA748DF0021F731 /* QRScanner in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = "qr-code-scanner";
 			packageProductDependencies = (
+				3EFB896A2EA748DF0021F731 /* QRScanner */,
 			);
 			productName = "qr-code-scanner";
 			productReference = 3EFB890C2EA721630021F731 /* qr-code-scanner.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = 3EFB89032EA721630021F731;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3EFB89692EA748DF0021F731 /* XCRemoteSwiftPackageReference "QRScanner" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3EFB890D2EA721630021F731 /* Products */;
 			projectDirPath = "";
@@ -147,6 +156,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "qr-code-scanner/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Allow QR Scanner to take a photo";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -177,6 +187,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "qr-code-scanner/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Allow QR Scanner to take a photo";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -339,6 +350,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3EFB89692EA748DF0021F731 /* XCRemoteSwiftPackageReference "QRScanner" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mercari/QRScanner.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3EFB896A2EA748DF0021F731 /* QRScanner */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3EFB89692EA748DF0021F731 /* XCRemoteSwiftPackageReference "QRScanner" */;
+			productName = QRScanner;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3EFB89042EA721630021F731 /* Project object */;
 }

@@ -6,10 +6,14 @@
 //
 
 import UIKit
-
+import AVFoundation
+import QRScanner
 
 class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate{
     
+    private var qrCodes: [QRCodeItem] = []
+    
+    private var qrScannerView: QRScannerView?
     
     private var collectionView: UICollectionView!
     
@@ -49,30 +53,58 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             
         setupCollectionView()
         setupLayout()
+
     }
     
-   
-    
-//    @objc func scanNewQRCode(){
-//        print("scanning")
-//    }
-    
-    @objc func scanNewQRCode(){
-        let linkText = "https://google.com"
-        if let qrImage = generateQRCode(from: linkText) {
-            presentQRCodeModal(qrImage: qrImage)
-        } else {
-            print("Failed to generate QR code")
+    private func setupQRScanner() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            setupQRScannerView()
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+                if granted {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.setupQRScannerView()
+                    }
+                }
+            }
+        default:
+            showAlert()
         }
     }
+    
+    private func setupQRScannerView() {
+        if qrScannerView != nil { return }
 
+        let scanner = QRScannerView(frame: view.bounds)
+        view.addSubview(scanner)
+        scanner.configure(delegate: self, input: .init(isBlurEffectEnabled: true))
+        scanner.startRunning()
+        qrScannerView = scanner
+    }
+
+    private func showAlert() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            let alert = UIAlertController(title: "Error", message: "Camera is required to use in this application", preferredStyle: .alert)
+            alert.addAction(.init(title: "OK", style: .default))
+            self?.present(alert, animated: true)
+        }
+    }
+    
+    func removeQRScannerView() {
+        qrScannerView?.stopRunning()
+        qrScannerView?.removeFromSuperview()
+        qrScannerView = nil
+    }
+    
+    @objc func scanNewQRCode() {
+        setupQRScanner()
+    }
     
     @objc private func layoutChanged() {
         let layout = segmentedControl.selectedSegmentIndex == 0 ? gridLayout : listLayout
         collectionView.setCollectionViewLayout(layout, animated: true)
     }
-
-
     
     private func setupCollectionView() {
 //        let layout = UICollectionViewFlowLayout()
@@ -93,8 +125,6 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         view.addSubview(collectionView)
     }
 
-
-    
     private func setupLayout() {
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -104,9 +134,9 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         ])
     }
     
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         10
+        //qrCodes.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -128,9 +158,15 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             let dummyImage = UIImage(systemName: "qrcode")!
             self.presentQRCodeModal(qrImage: dummyImage)
         }
-
-        return cell
         
+//        let item = qrCodes[indexPath.item]
+//        cell.configure(with: item.image, description: item.description, timestamp: item.timestamp)
+//        cell.onQRCodeTapped = { [weak self] in
+//            guard let self = self else { return }
+//            self.presentQRCodeModal(qrImage: item.image)
+//        }
+//        
+        return cell
     }
 
     func presentQRCodeModal(qrImage: UIImage) {
@@ -141,7 +177,6 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             sheet.detents = [.medium()]
             sheet.prefersGrabberVisible = true
         }
-        
         present(modalVC, animated: true)
     }
     
@@ -157,12 +192,35 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
                 return UIImage(ciImage: scaledImage)
             }
         }
-
         return nil
+    }
+}
+
+extension ViewController: QRScannerViewDelegate {
+    func qrScannerView(_ qrScannerView: QRScannerView, didFailure error: QRScannerError) {
+        print(error)
+        removeQRScannerView()
+    }
+
+    func qrScannerView(_ qrScannerView: QRScannerView, didSuccess code: String) {
+        print("Scanned code:", code)
+        
+        guard let qrImage = generateQRCode(from: code) else {
+            print("Failed to generate QR code image")
+            return
+        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd/MM/yy HH:mm"
+        let timestamp = formatter.string(from: Date())
+        let newItem = QRCodeItem(image: qrImage, description: code, timestamp: timestamp)
+        qrCodes.append(newItem)
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+            self.removeQRScannerView()
+        }
     }
 
 }
-    
 
 #Preview {
     ViewController()
