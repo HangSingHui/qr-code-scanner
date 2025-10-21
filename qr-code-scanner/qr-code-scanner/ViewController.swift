@@ -86,8 +86,8 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: gridLayout)
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(QRCodeCollectionViewCell.self,
-                                forCellWithReuseIdentifier: QRCodeCollectionViewCell.identifier)
+        collectionView.register(QRCodeGridViewCell.self,
+                                forCellWithReuseIdentifier: QRCodeGridViewCell.identifier)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .systemBackground
         view.addSubview(collectionView)
@@ -111,9 +111,9 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
-               withReuseIdentifier: QRCodeCollectionViewCell.identifier,
+               withReuseIdentifier: QRCodeGridViewCell.identifier,
                for: indexPath
-           ) as? QRCodeCollectionViewCell else {
+           ) as? QRCodeGridViewCell else {
                fatalError("Unable to dequeue QRCodeCollectionViewCell")
            }
         
