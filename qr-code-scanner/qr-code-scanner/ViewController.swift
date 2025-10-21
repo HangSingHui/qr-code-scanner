@@ -19,7 +19,7 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     private var currentLayoutStyle: LayoutStyle = .grid
     
     private var qrCodes: [QRCodeItem] = []
-    
+
     private var qrScannerView: QRScannerView?
     
     private var collectionView: UICollectionView!
@@ -65,29 +65,8 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             
         setupCollectionView()
         setupLayout()
-        loadDummyData()
+    //    loadDummyData()
     }
-    
-    private func loadDummyData() {
-            let dummyItems = [
-                QRCodeItem(image: generateQRCode(from: "https://www.apple.com") ?? UIImage(systemName: "qrcode")!,
-                          description: "https://www.apple.com",
-                          timestamp: "21/10/25 10:30"),
-                QRCodeItem(image: generateQRCode(from: "https://www.google.com") ?? UIImage(systemName: "qrcode")!,
-                          description: "https://www.google.com",
-                          timestamp: "21/10/25 11:45"),
-                QRCodeItem(image: generateQRCode(from: "Test QR Code 1234") ?? UIImage(systemName: "qrcode")!,
-                          description: "Test QR Code 1234",
-                          timestamp: "21/10/25 12:15"),
-                QRCodeItem(image: generateQRCode(from: "https://github.com") ?? UIImage(systemName: "qrcode")!,
-                          description: "https://github.com",
-                          timestamp: "21/10/25 14:20"),
-                QRCodeItem(image: generateQRCode(from: "Sample Text") ?? UIImage(systemName: "qrcode")!,
-                          description: "Sample Text",
-                          timestamp: "21/10/25 15:00")
-            ]
-            qrCodes.append(contentsOf: dummyItems)
-        }
     
     private func setupQRScanner() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -173,31 +152,41 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-       // 10
         return qrCodes.count
+
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let item = qrCodes[indexPath.item]
-        
+
         if currentLayoutStyle == .grid {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: QRCodeGridViewCell.identifier, for: indexPath) as! QRCodeGridViewCell
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: QRCodeGridViewCell.identifier,
+                for: indexPath
+            ) as? QRCodeGridViewCell else {
+                fatalError("Unable to dequeue QRCodeGridViewCell")
+            }
             cell.configure(with: item.image, description: item.description, timestamp: item.timestamp)
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: QRCodeListViewCell.identifier, for: indexPath) as! QRCodeListViewCell
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: QRCodeListViewCell.identifier,
+                for: indexPath
+            ) as? QRCodeListViewCell else {
+                fatalError("Unable to dequeue QRCodeListViewCell")
+            }
             cell.configure(with: item.image, description: item.description, timestamp: item.timestamp)
             return cell
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let item = qrCodes[indexPath.item]
-        presentQRCodeModal(qrImage: item.image)
+        presentQRCodeModal(item: item)
     }
 
-    func presentQRCodeModal(qrImage: UIImage) {
-        let modalVC = QRModalViewController(qrImage: qrImage)
+    func presentQRCodeModal(item: QRCodeItem) {
+        let modalVC = QRModalViewController(item: item)
         modalVC.modalPresentationStyle = .pageSheet
         
         if let sheet = modalVC.sheetPresentationController {
@@ -244,7 +233,7 @@ extension ViewController: QRScannerViewDelegate {
         DispatchQueue.main.async {
             self.collectionView.reloadData()
             self.removeQRScannerView()
-            self.presentQRCodeModal(qrImage: qrImage)
+            self.presentQRCodeModal(item: newItem)
         }
     }
 }
