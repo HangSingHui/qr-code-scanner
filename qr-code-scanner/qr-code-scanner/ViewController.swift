@@ -9,7 +9,14 @@ import UIKit
 import AVFoundation
 import QRScanner
 
-class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate{
+class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout{
+    
+    enum LayoutStyle {
+        case grid
+        case list
+    }
+
+    private var currentLayoutStyle: LayoutStyle = .grid
     
     private var qrCodes: [QRCodeItem] = []
     
@@ -20,29 +27,34 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     private var segmentedControl = UISegmentedControl(items: ["Grid", "List"])
     
     //Layout toggle
-     private var gridLayout: UICollectionViewFlowLayout = {
-         let layout = UICollectionViewFlowLayout()
-         let width = (UIScreen.main.bounds.width - 30) / 2
-         layout.itemSize = CGSize(width: width, height: width)
-         layout.minimumInteritemSpacing = 10
-         layout.minimumLineSpacing = 10
-         return layout
-     }()
+    private var gridLayout: UICollectionViewFlowLayout = {
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumInteritemSpacing = 10
+        layout.minimumLineSpacing = 10
+        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        layout.itemSize = CGSize(
+            width: (UIScreen.main.bounds.width - 30) / 2,
+            height: (UIScreen.main.bounds.width - 30) / 2 + 40
+        )
+        return layout
+    }()
 
-     private var listLayout: UICollectionViewFlowLayout = {
-         let layout = UICollectionViewFlowLayout()
-         let width = UIScreen.main.bounds.width - 20
-         layout.itemSize = CGSize(width: width, height: 80)
-         layout.minimumLineSpacing = 10
-         return layout
-     }()
-    
-   
+    private var listLayout: UICollectionViewFlowLayout = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 12
+        layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        layout.itemSize = CGSize(
+            width: UIScreen.main.bounds.width - 20,
+            height: 100 //
+            
+        )
+        return layout
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         navigationItem.titleView = segmentedControl
-        //Setup segmented control
         segmentedControl.selectedSegmentIndex = 0
         segmentedControl.addTarget(self, action: #selector(layoutChanged), for: .valueChanged)
         navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -53,8 +65,29 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
             
         setupCollectionView()
         setupLayout()
-
+        loadDummyData()
     }
+    
+    private func loadDummyData() {
+            let dummyItems = [
+                QRCodeItem(image: generateQRCode(from: "https://www.apple.com") ?? UIImage(systemName: "qrcode")!,
+                          description: "https://www.apple.com",
+                          timestamp: "21/10/25 10:30"),
+                QRCodeItem(image: generateQRCode(from: "https://www.google.com") ?? UIImage(systemName: "qrcode")!,
+                          description: "https://www.google.com",
+                          timestamp: "21/10/25 11:45"),
+                QRCodeItem(image: generateQRCode(from: "Test QR Code 1234") ?? UIImage(systemName: "qrcode")!,
+                          description: "Test QR Code 1234",
+                          timestamp: "21/10/25 12:15"),
+                QRCodeItem(image: generateQRCode(from: "https://github.com") ?? UIImage(systemName: "qrcode")!,
+                          description: "https://github.com",
+                          timestamp: "21/10/25 14:20"),
+                QRCodeItem(image: generateQRCode(from: "Sample Text") ?? UIImage(systemName: "qrcode")!,
+                          description: "Sample Text",
+                          timestamp: "21/10/25 15:00")
+            ]
+            qrCodes.append(contentsOf: dummyItems)
+        }
     
     private func setupQRScanner() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -102,26 +135,31 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
     
     @objc private func layoutChanged() {
-        let layout = segmentedControl.selectedSegmentIndex == 0 ? gridLayout : listLayout
-        collectionView.setCollectionViewLayout(layout, animated: true)
-    }
-    
-    private func setupCollectionView() {
-//        let layout = UICollectionViewFlowLayout()
-//
-//
-//        layout.itemSize = CGSize(width: 100, height: 100)
-//        layout.minimumLineSpacing = 10
-//        layout.minimumInteritemSpacing = 10
-//        layout.scrollDirection = .vertical
+        currentLayoutStyle = segmentedControl.selectedSegmentIndex == 0 ? .grid : .list
+        let layout = currentLayoutStyle == .grid ? gridLayout : listLayout
 
+        UIView.performWithoutAnimation {
+            collectionView.setCollectionViewLayout(layout, animated: false)
+            collectionView.reloadData()
+            collectionView.collectionViewLayout.invalidateLayout()
+            collectionView.layoutIfNeeded()
+        }
+    }
+
+
+    private func setupCollectionView() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: gridLayout)
         collectionView.dataSource = self
         collectionView.delegate = self
+        collectionView.alwaysBounceVertical = true
+        collectionView.backgroundColor = .systemBackground
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+
         collectionView.register(QRCodeGridViewCell.self,
                                 forCellWithReuseIdentifier: QRCodeGridViewCell.identifier)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .systemBackground
+        collectionView.register(QRCodeListViewCell.self,
+                                forCellWithReuseIdentifier: QRCodeListViewCell.identifier)
+
         view.addSubview(collectionView)
     }
 
@@ -135,38 +173,27 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        10
-        //qrCodes.count
+       // 10
+        return qrCodes.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-               withReuseIdentifier: QRCodeGridViewCell.identifier,
-               for: indexPath
-           ) as? QRCodeGridViewCell else {
-               fatalError("Unable to dequeue QRCodeCollectionViewCell")
-           }
+        let item = qrCodes[indexPath.item]
         
-        let dummyImage = UIImage(systemName: "qrcode")!
-        let dummyDescription = "QR Code \(indexPath.item + 1)"
-        let dummyTimestamp = "21/10/25"
-        
-        cell.configure(with: dummyImage, description: dummyDescription, timestamp: dummyTimestamp)
-        
-        cell.onQRCodeTapped = { [weak self] in
-            guard let self = self else { return }
-            let dummyImage = UIImage(systemName: "qrcode")!
-            self.presentQRCodeModal(qrImage: dummyImage)
+        if currentLayoutStyle == .grid {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: QRCodeGridViewCell.identifier, for: indexPath) as! QRCodeGridViewCell
+            cell.configure(with: item.image, description: item.description, timestamp: item.timestamp)
+            return cell
+        } else {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: QRCodeListViewCell.identifier, for: indexPath) as! QRCodeListViewCell
+            cell.configure(with: item.image, description: item.description, timestamp: item.timestamp)
+            return cell
         }
-        
-//        let item = qrCodes[indexPath.item]
-//        cell.configure(with: item.image, description: item.description, timestamp: item.timestamp)
-//        cell.onQRCodeTapped = { [weak self] in
-//            guard let self = self else { return }
-//            self.presentQRCodeModal(qrImage: item.image)
-//        }
-//        
-        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let item = qrCodes[indexPath.item]
+        presentQRCodeModal(qrImage: item.image)
     }
 
     func presentQRCodeModal(qrImage: UIImage) {
@@ -217,12 +244,7 @@ extension ViewController: QRScannerViewDelegate {
         DispatchQueue.main.async {
             self.collectionView.reloadData()
             self.removeQRScannerView()
+            self.presentQRCodeModal(qrImage: qrImage)
         }
     }
-
 }
-
-#Preview {
-    ViewController()
-}
-
